@@ -13,6 +13,8 @@ const config = {
     host: process.env.TYPEORM_HOST || 'localhost',
     synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
     logging: process.env.TYPEORM_LOGGING === 'true',
+    entities: [process.env.TYPEORM_ENTITIES || 'src/api/repositories/entities/*.ts'],
+    migrations: [process.env.TYPEORM_MIGRATIONS || 'src/db/migrations/*.ts'],
   },
 };
 

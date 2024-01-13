@@ -1,4 +1,4 @@
-import { appDataSource } from './dataSource';
+import appDataSource from './dataSource';
 import logger from '../lib/logger';
 
 class TypeORM {

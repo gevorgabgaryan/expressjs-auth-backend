@@ -1,7 +1,8 @@
+import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import config from '../config';
 
-export const appDataSource = new DataSource({
+const appDataSource = new DataSource({
   type: config.db.type as any,
   host: config.db.host,
   port: config.db.port,
@@ -10,6 +11,8 @@ export const appDataSource = new DataSource({
   database: config.db.dbName,
   synchronize: config.db.synchronize,
   logging: config.db.logging,
-  entities: [],
-  migrations: [],
+  entities: config.db.entities,
+  migrations: config.db.migrations,
 });
+
+export default appDataSource;
