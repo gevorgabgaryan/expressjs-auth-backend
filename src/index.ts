@@ -1,9 +1,11 @@
-import express from 'express';
-const app = express();
-const port = process.env.PORT || 3000;
+import 'reflect-metadata';
+import TypeORM from './db';
+import logger from './lib/logger';
 
-app.get('/', (_, res) => res.send('Hello World!'));
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+(async () => {
+  try {
+    await TypeORM.init();
+  } catch (err) {
+    logger.error('Initializing error', err);
+  }
+})();

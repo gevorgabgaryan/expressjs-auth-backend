@@ -1,0 +1,9 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: '${TYPEORM_DB_NAME}'
+      POSTGRES_USER: '${TYPEORM_USERNAME}'
+      POSTGRES_PASSWORD: '${TYPEORM_PASSWORD}'
+    ports:
+      - "5432:5432"
