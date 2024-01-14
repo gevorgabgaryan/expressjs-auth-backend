@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne } from 'typeorm';
 import { IsUrl, IsString } from 'class-validator';
 import { BaseEntity } from './BaseEntity';
-import { UserEntity } from './UserEntity';
+import { ClientEntity } from './ClientEntity';
 
 @Entity()
 export class PhotoEntity extends BaseEntity {
@@ -13,6 +13,6 @@ export class PhotoEntity extends BaseEntity {
   @IsUrl()
   url: string;
 
-  @ManyToOne(() => UserEntity)
-  user: UserEntity;
+  @ManyToOne(() => ClientEntity, (client) => client.photos)
+  user: ClientEntity;
 }

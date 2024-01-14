@@ -6,7 +6,7 @@ import { UserEntity } from './UserEntity';
 
 @Entity()
 export class ClientEntity extends UserEntity {
-  @Column({ default: 'default_avatar_url' })
+  @Column({ default: '/public/avatar.jpg' })
   @IsUrl()
   avatar: string;
 

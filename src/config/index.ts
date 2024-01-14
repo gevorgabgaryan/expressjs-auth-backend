@@ -4,6 +4,7 @@ dotenvConfig();
 const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 3115,
+  routePrefix: '/api',
   db: {
     type: process.env.TYPEORM_TYPE || 'postgres',
     port: process.env.TYPEORM_PORT ? parseInt(process.env.TYPEORM_PORT, 10) : 5432,
@@ -16,6 +17,8 @@ const config = {
     entities: [process.env.TYPEORM_ENTITIES || 'src/api/repositories/entities/*.ts'],
     migrations: [process.env.TYPEORM_MIGRATIONS || 'src/db/migrations/*.ts'],
   },
+  userAvatarDir: '/public/images/users',
+  maxFileSize: 100 * 1024 * 1024,
 };
 
 export default config;

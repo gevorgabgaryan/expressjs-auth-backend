@@ -12,7 +12,6 @@
     "db:dev:rm": "docker compose down -v",
     "db:dev:up": "docker compose up -d",
     "db:dev:restart": "npm run db:dev:rm && npm run db:dev:up",
-    "db:migrate:deploy": "npm run typeorm:run-migrations",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js ",
     "typeorm:generate-migration": "npm run typeorm -- migration:generate src/db/migrations/$npm_config_name -d src/db/dataSource.ts",
     "typeorm:run-migrations": "npm run typeorm -- migration:run -d src/db/dataSource"
@@ -42,11 +41,17 @@
   },
   "dependencies": {
     "@nartc/automapper": "^7.0.4",
+    "argon2": "^0.31.2",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "class-validator-jsonschema": "^5.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.1",
+    "routing-controllers": "^0.10.4",
+    "typedi": "^0.10.0",
     "typeorm": "^0.3.19",
     "winston": "^3.11.0"
   }

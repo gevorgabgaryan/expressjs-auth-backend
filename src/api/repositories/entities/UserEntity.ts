@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Entity, Column, Index } from 'typeorm';
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 import { AutoMap } from '@nartc/automapper';
 
 import { BaseEntity } from './BaseEntity';
@@ -24,13 +24,10 @@ export class UserEntity extends BaseEntity {
   public email: string;
 
   @AutoMap()
-  @IsOptional()
   @Column({ name: 'password_hash' })
   public passwordHash: string;
 
-  @Column()
-  password: string;
-
+  @AutoMap()
   @Column({ default: 'user' })
   role: string;
 

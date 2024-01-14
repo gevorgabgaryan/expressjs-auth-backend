@@ -1,6 +1,5 @@
 import appDataSource from './dataSource';
 import logger from '../lib/logger';
-
 class TypeORM {
   static async init() {
     try {
