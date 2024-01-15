@@ -45,4 +45,12 @@ export class UserService {
 
     return Mapper.map(savedClient, User);
   }
+
+  public async getUser(userId: string): Promise<User | undefined> {
+    const userEntity = await this.clientRepository.findOne({ where: { id: userId } });
+    if (!userEntity) {
+      return undefined;
+    }
+    return Mapper.map(userEntity, User);
+  }
 }

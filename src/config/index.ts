@@ -19,6 +19,9 @@ const config = {
   },
   userAvatarDir: '/public/images/users',
   maxFileSize: 100 * 1024 * 1024,
+  JWTSecret: process.env.JWT_SECRET || 'very_secret',
+  JWTExpireIn: process.env.JWT_EXPIRE_IN,
+  logOutput: process.env.LOG_OUTPUT || 'dev',
 };
 
 export default config;
