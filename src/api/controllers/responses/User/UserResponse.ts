@@ -1,6 +1,7 @@
 import { IsBoolean, IsEmail, IsEnum, IsString, IsUUID } from 'class-validator';
 import { AutoMap } from '@nartc/automapper';
 import { Role } from '../../../enums/Role';
+import { Photo } from '../../../services/models/Photo';
 
 export class UserResponse {
   @AutoMap()
@@ -16,6 +17,10 @@ export class UserResponse {
   public lastName: string;
 
   @AutoMap()
+  @IsString()
+  public fullName: string;
+
+  @AutoMap()
   @IsEmail()
   public email: string;
 
@@ -26,4 +31,7 @@ export class UserResponse {
   @AutoMap()
   @IsBoolean()
   public isActive: boolean;
+
+  @AutoMap()
+  photos: Photo[];
 }

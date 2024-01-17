@@ -6,22 +6,43 @@ import config from '../../../config';
 
 export const fileUploadMiddleware = (req: UploadFileRequest, res: Response, next: NextFunction) => {
   if (req.method === 'POST' && req.headers['content-type']?.startsWith('multipart/form-data')) {
-    let rawData = '';
+    const buffers: Buffer[] = [];
 
-    req.on('data', (chunk: Buffer) => (rawData += chunk));
+    req.on('data', (chunk: Buffer) => {
+      buffers.push(chunk);
+    });
+
     req.on('end', () => {
+      const rawData = Buffer.concat(buffers);
       const boundary = `--${req.headers['content-type']!.split('boundary=')[1]}`;
-      rawData = rawData.substring(0, rawData.lastIndexOf(boundary)); // Trim last boundary
-      const parts = rawData
-        .split(boundary)
-        .slice(1)
-        .map((part) => part.substring(4, part.lastIndexOf('\r\n')));
+      const boundaryBuffer = Buffer.from(boundary, 'binary');
+
+      // Split on the boundary buffer
+      let lastIndex = 0;
+      const parts: Buffer[] = [];
+      while (lastIndex < rawData.length) {
+        const index = rawData.indexOf(boundaryBuffer, lastIndex);
+        if (index < 0) {
+          break;
+        }
+        if (lastIndex != 0) {
+          // Skip the preamble (CRLF before the boundary)
+          const part = rawData.slice(lastIndex + 2, index - 2);
+          parts.push(part);
+        }
+        lastIndex = index + boundaryBuffer.length;
+      }
 
       req.body = {};
       req.files = [];
 
-      parts.forEach((part) => {
-        const [headers, body] = part.split('\r\n\r\n');
+      parts.forEach((partBuffer) => {
+        const headersEndIndex = partBuffer.indexOf('\r\n\r\n');
+        if (headersEndIndex < 0) {
+          return;
+        }
+        const headers = partBuffer.subarray(0, headersEndIndex).toString();
+        const body = partBuffer.subarray(headersEndIndex + 4);
         const contentDisposition = headers.split('\r\n')[0].split('; ');
         const fieldName = contentDisposition[1].split('=')[1].replace(/"/g, '');
 
@@ -52,19 +73,12 @@ export const fileUploadMiddleware = (req: UploadFileRequest, res: Response, next
 
           req.files.push({
             filename: filename,
-            path: uploadDir,
+            path: `${uploadDir}/${filename}`,
             mimetype,
           });
         } else {
-          let value = body;
-          if (body) {
-            const endOfValueIndex = body.lastIndexOf('\r\n');
-            if (endOfValueIndex !== -1) {
-              value = body.slice(0, endOfValueIndex);
-            }
-          }
-
-          req.body[fieldName] = value;
+          const textValue = body.toString('utf8');
+          req.body[fieldName] = textValue.replace(/[\r\n]+$/, '');
         }
       });
 

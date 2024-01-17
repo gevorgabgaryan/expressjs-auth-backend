@@ -47,7 +47,7 @@ export class UserService {
   }
 
   public async getUser(userId: string): Promise<User | undefined> {
-    const userEntity = await this.clientRepository.findOne({ where: { id: userId } });
+    const userEntity = await this.clientRepository.findOne({ where: { id: userId }, relations: ['photos'] });
     if (!userEntity) {
       return undefined;
     }
