@@ -1,9 +1,30 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:16
+    restart: always
     environment:
-      POSTGRES_DB: '${TYPEORM_DB_NAME}'
-      POSTGRES_USER: '${TYPEORM_USERNAME}'
-      POSTGRES_PASSWORD: '${TYPEORM_PASSWORD}'
+      POSTGRES_DB: ${TYPEORM_DB_NAME}
+      POSTGRES_USER: ${TYPEORM_USERNAME}
+      POSTGRES_PASSWORD: ${TYPEORM_PASSWORD}
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: .
+    restart: always
+    env_file:
+      - .env.prod
+    ports:
+      - "4000:3115"
+    depends_on:
+      - db
+
+
+volumes:
+  postgres_data:
+

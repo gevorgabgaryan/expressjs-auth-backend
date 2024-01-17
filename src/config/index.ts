@@ -11,7 +11,7 @@ const config = {
     userName: process.env.TYPEORM_USERNAME || 'app_user',
     password: process.env.TYPEORM_PASSWORD || 'app_password',
     dbName: process.env.TYPEORM_DB_NAME || 'app-db',
-    host: process.env.TYPEORM_HOST || 'localhost',
+    host: process.env.TYPEORM_HOST || 'db',
     synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
     logging: process.env.TYPEORM_LOGGING === 'true',
     entities: [process.env.TYPEORM_ENTITIES || 'src/api/repositories/entities/*.ts'],
