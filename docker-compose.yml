@@ -13,6 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+
   server:
     build:
       context: .
@@ -27,4 +28,5 @@ services:
 
 volumes:
   postgres_data:
+
 
