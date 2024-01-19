@@ -29,11 +29,18 @@ export class UserService extends BaseTransactionable {
         client.avatar = files.length > 0 ? files[0].path : 'default-avatar-url';
 
         const savedClient = await unitOfWork.clientRepository.saveClient(client);
-
-        for (const file of files) {
+        if (files.length) {
+          for (const file of files) {
+            const photo = new PhotoEntity();
+            photo.name = file.filename;
+            photo.url = file.path;
+            photo.user = savedClient;
+            await unitOfWork.photoRepository.savePhoto(photo);
+          }
+        } else {
           const photo = new PhotoEntity();
-          photo.name = file.filename;
-          photo.url = file.path;
+          photo.name = 'Avatar';
+          photo.url = '/public/images/avatar.jpg';
           photo.user = savedClient;
           await unitOfWork.photoRepository.savePhoto(photo);
         }

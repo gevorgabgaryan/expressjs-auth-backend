@@ -17,42 +17,47 @@ import { RateLimitingMiddleware } from './middlewares/RateLimitingMiddleware';
 import { NotFoundMiddleware } from './middlewares/NotFoundMiddleware';
 import { CompressionMiddleware } from './middlewares/CompressionMiddleware';
 import { SecurityHstsMiddleware } from './middlewares/SecurityHstsMiddleware';
+import { AppError } from '../errors/AppError';
 
 class App {
   static server: Server;
   static async init() {
-    const passport = SetupPassport();
-    useContainer(Container);
-    const app: Application = createExpressServer({
-      cors: true,
-      controllers,
-      middlewares: [
-        ErrorHandlerMiddleware,
-        LogMiddleware,
-        RateLimitingMiddleware,
-        NotFoundMiddleware,
-        CompressionMiddleware,
-        SecurityHstsMiddleware,
-      ],
-      routePrefix: config.routePrefix,
-      validation: {
-        whitelist: true,
-      },
-      defaultErrorHandler: false,
-      authorizationChecker: authorizationChecker,
-      currentUserChecker: currentUserChecker,
-    });
+    try {
+      const passport = SetupPassport();
+      useContainer(Container);
+      const app: Application = createExpressServer({
+        cors: true,
+        controllers,
+        middlewares: [
+          ErrorHandlerMiddleware,
+          LogMiddleware,
+          RateLimitingMiddleware,
+          NotFoundMiddleware,
+          CompressionMiddleware,
+          SecurityHstsMiddleware,
+        ],
+        routePrefix: config.routePrefix,
+        validation: {
+          whitelist: true,
+        },
+        defaultErrorHandler: false,
+        authorizationChecker: authorizationChecker,
+        currentUserChecker: currentUserChecker,
+      });
 
-    app.use(passport.initialize());
-    app.use('/public', expressStatic('public'));
+      app.use(passport.initialize());
+      app.use('/public', expressStatic('public'));
 
-    App.initAutoMapper();
-    const server = app.listen(config.port, () => {
-      logger.info(`Server is running on port ${config.port}`);
-    });
+      App.initAutoMapper();
+      const server = app.listen(config.port, () => {
+        logger.info(`Server is running on port ${config.port}`);
+      });
 
-    App.server = server;
-    return server;
+      App.server = server;
+      return server;
+    } catch (e: any) {
+      throw new AppError(e.stack);
+    }
   }
 
   static async close() {

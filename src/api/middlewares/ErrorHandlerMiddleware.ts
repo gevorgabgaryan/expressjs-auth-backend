@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import { Middleware, ExpressErrorMiddlewareInterface, UnauthorizedError } from 'routing-controllers';
+import { Middleware, ExpressErrorMiddlewareInterface, UnauthorizedError, HttpError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { ValidationError } from 'class-validator';
 import { BaseError } from '../../errors/BaseError';
 import { AppError } from '../../errors/AppError';
 import { NotFoundError } from '../../errors/NotFoundError';
 import { AppBadRequestError } from '../../errors/AppBadRequestError';
-import { ErrorField } from '../../types';
 import { ExistsError } from '../../errors/ExistsError';
+import { ErrorField } from '../controllers/types/ErrorField';
 
 @Service()
 @Middleware({ type: 'after' })
@@ -18,7 +18,14 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
       case 'errors' in error &&
         Array.isArray(error.errors) &&
         error.errors.every((e: any) => e instanceof ValidationError):
-        baseError = new AppBadRequestError(this.mapValidationErrors(error.errors as ValidationError[]));
+        baseError = new AppBadRequestError(
+          'Bad request schema',
+          this.mapValidationErrors(error.errors as ValidationError[]),
+        );
+        break;
+      case error instanceof HttpError:
+      case error instanceof AppBadRequestError:
+        baseError = error;
         break;
       case error instanceof BaseError:
         baseError = error;
