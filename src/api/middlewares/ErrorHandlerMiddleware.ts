@@ -1,51 +1,44 @@
 import { Request, Response } from 'express';
-import { Middleware, ExpressErrorMiddlewareInterface, HttpError } from 'routing-controllers';
+import { Middleware, ExpressErrorMiddlewareInterface, UnauthorizedError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { ValidationError } from 'class-validator';
-import { CustomError } from '../../errors/CustomError';
-import logger from '../../lib/logger';
-
-interface ErrorField {
-  field: string;
-  constraints: string[];
-}
-
-interface ErrorResponse {
-  code: number;
-  message: string;
-  details?: ErrorField[];
-}
+import { BaseError } from '../../errors/BaseError';
+import { AppError } from '../../errors/AppError';
+import { NotFoundError } from '../../errors/NotFoundError';
+import { AppBadRequestError } from '../../errors/AppBadRequestError';
+import { ErrorField } from '../../types';
+import { ExistsError } from '../../errors/ExistsError';
 
 @Service()
 @Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
-  error(err: any, req: Request, res: Response) {
-    logger.error(err);
-    let responseObj: ErrorResponse;
-    let statusCode: number;
-
-    if ('errors' in err && Array.isArray(err.errors) && err.errors.every((e: any) => e instanceof ValidationError)) {
-      statusCode = 400;
-      responseObj = {
-        code: 400,
-        message: 'Invalid request schema',
-        details: this.mapValidationErrors(err.errors as ValidationError[]),
-      };
-    } else if (err instanceof CustomError || err instanceof HttpError) {
-      statusCode = err.httpCode;
-      responseObj = {
-        code: err.httpCode,
-        message: err.message,
-      };
-    } else {
-      statusCode = 500;
-      responseObj = {
-        code: 500,
-        message: 'Unexpected error',
-      };
+  error(error: any, req: Request, res: Response) {
+    let baseError: any;
+    switch (true) {
+      case 'errors' in error &&
+        Array.isArray(error.errors) &&
+        error.errors.every((e: any) => e instanceof ValidationError):
+        baseError = new AppBadRequestError(this.mapValidationErrors(error.errors as ValidationError[]));
+        break;
+      case error instanceof BaseError:
+        baseError = error;
+        break;
+      case error instanceof UnauthorizedError:
+        baseError = new UnauthorizedError();
+        break;
+      case error instanceof NotFoundError:
+        baseError = new NotFoundError();
+        break;
+      case error instanceof ExistsError:
+        baseError = new ExistsError();
+        break;
+      default:
+        baseError = new AppError(error.message);
+        break;
     }
 
-    res.status(statusCode).json(responseObj);
+    res.status(baseError.status ? baseError.status : 400);
+    res.json(baseError);
   }
 
   private mapValidationErrors(errors: ValidationError[]): ErrorField[] {

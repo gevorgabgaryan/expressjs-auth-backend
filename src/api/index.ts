@@ -13,6 +13,10 @@ import SetupPassport from '../lib/passport';
 import { LogMiddleware } from './middlewares/LogMiddleware';
 import authorizationChecker from './auth/authorizationChecker';
 import currentUserChecker from './auth/currentUserChecker';
+import { RateLimitingMiddleware } from './middlewares/RateLimitingMiddleware';
+import { NotFoundMiddleware } from './middlewares/NotFoundMiddleware';
+import { CompressionMiddleware } from './middlewares/CompressionMiddleware';
+import { SecurityHstsMiddleware } from './middlewares/SecurityHstsMiddleware';
 
 class App {
   static server: Server;
@@ -22,7 +26,14 @@ class App {
     const app: Application = createExpressServer({
       cors: true,
       controllers,
-      middlewares: [ErrorHandlerMiddleware, LogMiddleware],
+      middlewares: [
+        ErrorHandlerMiddleware,
+        LogMiddleware,
+        RateLimitingMiddleware,
+        NotFoundMiddleware,
+        CompressionMiddleware,
+        SecurityHstsMiddleware,
+      ],
       routePrefix: config.routePrefix,
       validation: {
         whitelist: true,

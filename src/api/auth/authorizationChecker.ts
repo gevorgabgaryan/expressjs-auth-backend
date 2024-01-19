@@ -1,6 +1,7 @@
 import { Action } from 'routing-controllers';
 import passport from 'passport';
 import { User } from '../services/models/User';
+import { UnauthorizedError } from '../../errors/UnAuthorizedError';
 
 const authorizationChecker = async (action: Action): Promise<boolean> => {
   return new Promise((resolve, reject) => {
@@ -9,7 +10,7 @@ const authorizationChecker = async (action: Action): Promise<boolean> => {
         return reject(err);
       }
       if (!user) {
-        return resolve(false);
+        throw new UnauthorizedError();
       }
       action.request.user = user;
       return resolve(true);

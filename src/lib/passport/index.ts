@@ -1,8 +1,10 @@
 import passport from 'passport';
 import passportJWT from 'passport-jwt';
+
 import Container from 'typedi';
 import { UserService } from '../../api/services/UserService';
 import config from '../../config';
+import { UnauthorizedError } from '../../errors/UnAuthorizedError';
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
@@ -20,7 +22,7 @@ const SetupPassport = () => {
         const userService = Container.get<UserService>(UserService);
         const user = await userService.getUser(jwtPayload.id);
         if (!user) {
-          done(null, false);
+          throw new UnauthorizedError();
         }
         if (!user?.isActive) {
           done(null, false);
