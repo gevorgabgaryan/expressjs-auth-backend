@@ -32,13 +32,14 @@ class App {
           ErrorHandlerMiddleware,
           LogMiddleware,
           RateLimitingMiddleware,
-          NotFoundMiddleware,
           CompressionMiddleware,
           SecurityHstsMiddleware,
+          NotFoundMiddleware,
         ],
         routePrefix: config.routePrefix,
         validation: {
           whitelist: true,
+          forbidNonWhitelisted: true,
         },
         defaultErrorHandler: false,
         authorizationChecker: authorizationChecker,
@@ -52,7 +53,14 @@ class App {
       const server = app.listen(config.port, () => {
         logger.info(`Server is running on port ${config.port}`);
       });
-
+      server.on('error', (error: any) => {
+        if (error.code === 'EADDRINUSE') {
+          logger.error(`Port ${config.port} is already in use.`);
+          process.exit(1);
+        } else {
+          throw new AppError(error.stack);
+        }
+      });
       App.server = server;
       return server;
     } catch (e: any) {

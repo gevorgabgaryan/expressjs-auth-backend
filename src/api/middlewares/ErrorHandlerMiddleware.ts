@@ -13,6 +13,8 @@ import { ErrorField } from '../controllers/types/ErrorField';
 @Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
   error(error: any, req: Request, res: Response) {
+    // console.log(error);
+    console.dir(error, { depth: 7 });
     let baseError: any;
     switch (true) {
       case 'errors' in error &&
@@ -44,16 +46,37 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
         break;
     }
 
-    res.status(baseError.status ? baseError.status : 400);
+    res.status(baseError.status ? baseError.status : 500);
     res.json(baseError);
   }
 
   private mapValidationErrors(errors: ValidationError[]): ErrorField[] {
     const result: ErrorField[] = [];
+
     errors.forEach((error) => {
       const property = error.property;
-      const constraints = Object.values(error.constraints || {});
-      result.push({ field: property, constraints });
+      const constraints = Object.values(error.constraints || []);
+      let childConstraints: string[] = [];
+
+      if (error.children && error.children.length > 0) {
+        const childErrors = this.mapValidationErrors(error.children);
+
+        // Extract constraints from child errors
+        childConstraints = childErrors.reduce<string[]>((acc, childError) => {
+          return acc.concat(childError.constraints);
+        }, []);
+
+        // Remove duplicate constraints from child errors
+        childConstraints = Array.from(new Set(childConstraints));
+      }
+
+      // Remove duplicate constraints from the current error
+      const uniqueConstraints = Array.from(new Set(constraints));
+
+      // Combine constraints from the current error and child errors
+      const combinedConstraints = [...uniqueConstraints, ...childConstraints];
+
+      result.push({ field: property, constraints: combinedConstraints });
     });
 
     return result;

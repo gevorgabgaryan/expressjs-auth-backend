@@ -7,6 +7,10 @@ import { NotFoundError } from '../../errors/NotFoundError';
 @Middleware({ type: 'after', priority: 100 })
 export class NotFoundMiddleware implements ExpressMiddlewareInterface {
   public use(req: express.Request, res: express.Response, next: express.NextFunction): any {
-    next(new NotFoundError());
+    if (!res.headersSent) {
+      next(new NotFoundError());
+    } else {
+      next();
+    }
   }
 }
