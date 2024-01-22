@@ -1,32 +1,31 @@
 import { Service } from 'typedi';
-import { Repository } from 'typeorm';
-import appDataSource from '../../db/dataSource';
 import jwt from 'jsonwebtoken';
-import { ClientEntity } from '../repositories/entities/ClientEntity';
-
 import * as argon from 'argon2';
-
-import { CustomError } from '../../errors/CustomError';
 import { LoginBody } from '../controllers/requests/auth/LoginBody';
 import config from '../../config';
 import { Auth } from './models/Auth';
-import logger from '../../lib/logger';
+import { UnauthorizedError } from '../../errors/UnAuthorizedError';
+import { ClientRepository } from '../repositories/ClientRepository';
+import { BaseService } from './BaseService';
 
+ClientRepository;
 @Service()
-export class AuthService {
-  private clientRepository: Repository<ClientEntity> = appDataSource.getRepository(ClientEntity);
+export class AuthService extends BaseService {
+  constructor() {
+    super();
+  }
 
   async login(userData: LoginBody): Promise<Auth> {
-    try {
-      const user = await this.clientRepository.findOne({ where: { email: userData.email } });
-      if (!user) throw new CustomError('credentials incorrect');
+    const tokenObj = await this.transaction(async (unitOfWork) => {
+      const user = await unitOfWork.clientRepository.findUserByEmail(userData.email);
+      if (!user) throw new UnauthorizedError();
+
       const psMatches = await argon.verify(user.passwordHash, userData.password);
-      if (!psMatches) throw new CustomError('credentials incorrect');
+      if (!psMatches) throw new UnauthorizedError();
+
       return await this.signToken(user.id);
-    } catch (e) {
-      logger.error(e);
-      throw e;
-    }
+    });
+    return tokenObj;
   }
 
   async signToken(userId: string): Promise<Auth> {

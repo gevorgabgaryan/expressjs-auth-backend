@@ -1,12 +1,12 @@
-import { AutoMapper, ProfileBase, mapWith } from '@nartc/automapper';
+import { AutoMapper, ProfileBase, ignore, mapFrom } from '@nartc/automapper';
 import { BaseModel } from '../../services/models/BaseModel';
 import { Photo } from '../../services/models/Photo';
-import { User } from '../../services/models/User';
+import { Client } from '../../services/models/Client';
 import { BaseEntity } from '../entities/BaseEntity';
 import { ClientEntity } from '../entities/ClientEntity';
 import { PhotoEntity } from '../entities/PhotoEntity';
 import { UserEntity } from '../entities/UserEntity';
-
+import { User } from '../../services/models/User';
 export class RepositoryMapperProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();
@@ -16,16 +16,28 @@ export class RepositoryMapperProfile extends ProfileBase {
       })
       .reverseMap();
 
-    mapper.createMap(PhotoEntity, Photo).reverseMap();
-    mapper.createMap(PhotoEntity, PhotoEntity).reverseMap();
+    mapper.createMap(ClientEntity, Client, {
+      includeBase: [UserEntity, User],
+    });
+
+    mapper.createMap(Client, ClientEntity, {
+      includeBase: [User, UserEntity],
+    });
 
     mapper
-      .createMap(ClientEntity, User, {
-        includeBase: [BaseEntity, BaseModel],
+      .createMap(Photo, PhotoEntity, {
+        includeBase: [BaseModel, BaseEntity],
       })
       .forMember(
-        (d) => d.photos,
-        mapWith(PhotoEntity, (s: ClientEntity) => s.photos),
+        (d) => d.user,
+        mapFrom((s) => s.user),
       );
+
+    mapper
+      .createMap(PhotoEntity, Photo, {
+        includeBase: [BaseEntity, BaseModel],
+      })
+      .forMember((d) => d.createdAt, ignore())
+      .forMember((d) => d.updatedAt, ignore());
   }
 }

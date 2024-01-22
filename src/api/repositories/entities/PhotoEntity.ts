@@ -7,12 +7,12 @@ import { AutoMap } from '@nartc/automapper';
 @Entity()
 export class PhotoEntity extends BaseEntity {
   @AutoMap()
-  @Column()
+  @Column({ default: 'Avatar' })
   @IsString()
   name: string;
 
   @AutoMap()
-  @Column()
+  @Column({ default: '/public/images/avatar.jpg' })
   @IsUrl()
   url: string;
 

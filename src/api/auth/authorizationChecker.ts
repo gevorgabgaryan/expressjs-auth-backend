@@ -1,15 +1,16 @@
 import { Action } from 'routing-controllers';
 import passport from 'passport';
-import { User } from '../services/models/User';
+import { Client } from '../services/models/Client';
+import { UnauthorizedError } from '../../errors/UnAuthorizedError';
 
 const authorizationChecker = async (action: Action): Promise<boolean> => {
   return new Promise((resolve, reject) => {
-    passport.authenticate('jwt', { session: false }, (err: Error, user: User) => {
+    passport.authenticate('jwt', { session: false }, (err: Error, user: Client) => {
       if (err) {
         return reject(err);
       }
       if (!user) {
-        return resolve(false);
+        throw new UnauthorizedError();
       }
       action.request.user = user;
       return resolve(true);

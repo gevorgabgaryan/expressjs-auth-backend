@@ -15,13 +15,36 @@ const logger = createLogger({
       maxFiles: 5,
       filename: 'logs/info.log',
     }),
+    // Add a custom console transport for error logs
+    new transports.Console({
+      level: 'error', // Log only errors to the console
+      handleExceptions: true,
+      format: format.combine(
+        format.timestamp({
+          format: 'MMM-DD-YYYY HH:mm:ss',
+        }),
+        format.colorize(),
+        format.printf((info) => {
+          if (info instanceof Error) {
+            // Log error stack trace for error logs
+            return `${info.timestamp} ${info.level}: ${info.message}\n${info.stack}`;
+          }
+          return `${info.timestamp} ${info.level}: ${info.message}`;
+        }),
+      ),
+    }),
   ],
   format: format.combine(
-    format.colorize(),
     format.timestamp({
       format: 'MMM-DD-YYYY HH:mm:ss',
     }),
-    format.printf((info) => `${info.level}: ${[info.timestamp]}: ${info.message}`),
+    format.printf((info) => {
+      if (info instanceof Error) {
+        // Log error stack trace for error logs
+        return `${info.timestamp} ${info.level}: ${info.message}\n${info.stack}`;
+      }
+      return `${info.timestamp} ${info.level}: ${info.message}`;
+    }),
   ),
 });
 
@@ -35,10 +58,13 @@ if (config.nodeEnv !== 'production') {
         }),
         format.colorize(),
         format.printf((info) => {
-          const timestamp = info.timestamp || '';
-          const message = info.message || '';
-          const stack = info.stack || '';
-          return `${timestamp} ${info.level}: ${message}\n${stack}`;
+          if (info instanceof Error) {
+            return `${info.timestamp} ${info.level}: ${info.message}\n${info.stack}\nFile: ${info.file}, Line: ${info.line}`;
+          }
+          if (info.level === 'error') {
+            return `${info.timestamp} ${info.level}: ${info.message}${JSON.stringify(info)}`;
+          }
+          return `${info.timestamp} ${info.level}: ${info.message}`;
         }),
       ),
     }),

@@ -7,7 +7,7 @@ import { AutoMap } from '@nartc/automapper';
 @Entity()
 export class ClientEntity extends UserEntity {
   @AutoMap()
-  @Column({ default: '/public/avatar.jpg' })
+  @Column({ default: '/public/images/avatar.jpg' })
   @IsUrl()
   avatar: string;
 

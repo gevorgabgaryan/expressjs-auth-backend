@@ -7,6 +7,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+- [API Documentation](#api-documentation)
 - [Contact](#contact)
 
 ## Introduction
@@ -44,6 +45,14 @@ Make sure you have the following installed on your machine:
 
   2. The application will be running on
       -  http://localhost:4000
+
+## API Documentation
+
+
+ 1.  API documentation is generated using Swagger UI.
+     After starting the application,
+     you can access the documentation at
+     - http://localhost:4000/api-docs
 
 ## Contact
    For any inquiries, please contact Gevorg
