@@ -10,9 +10,11 @@ import { LoginBody } from './requests/auth/LoginBody';
 import { AuthResponse } from './responses/auth/LoginResponse';
 import { AuthService } from '../services/AuthService';
 import { AppError } from '../../errors/AppError';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 @Service()
 @JsonController()
+@OpenAPI({ security: [{ basicAuth: [] }] })
 export class AuthController {
   constructor(
     private clientService: ClientService,
@@ -21,7 +23,8 @@ export class AuthController {
 
   @Post('/register')
   @UseBefore(fileUploadMiddleware)
-  async register(@Body() body: ClientCreateBody, @Req() req: Request) {
+  @ResponseSchema(ClientCreateResponse)
+  async register(@Body() body: ClientCreateBody, @Req() req: Request): Promise<ClientCreateResponse> {
     if (!req.is('multipart/form-data')) {
       throw new AppError('Unsupported content type, expecting multipart/form-data');
     }
@@ -31,6 +34,7 @@ export class AuthController {
   }
 
   @Post('/login')
+  @ResponseSchema(AuthResponse)
   public async login(@Req() req: Request, @Body() body: LoginBody): Promise<AuthResponse> {
     const auth = await this.authService.login(body);
     return Mapper.map(auth, AuthResponse);

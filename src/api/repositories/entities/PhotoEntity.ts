@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { IsUrl, IsString } from 'class-validator';
 import { BaseEntity } from './BaseEntity';
 import { ClientEntity } from './ClientEntity';

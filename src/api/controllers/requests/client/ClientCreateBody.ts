@@ -38,5 +38,6 @@ export class ClientCreateBody {
   @Type(() => FileBody)
   @ArrayMinSize(4, { message: 'Min attached photos: 4 elements' })
   @ArrayMaxSize(10, { message: 'Max attached photos: 10 elements' })
+  @IsNotEmpty()
   public files: FileBody[];
 }

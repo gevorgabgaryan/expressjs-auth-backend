@@ -6,6 +6,7 @@ import { ClientCreateBody } from '../requests/client/ClientCreateBody';
 import { AuthResponse } from '../responses/auth/LoginResponse';
 import { ClientCreateResponse } from '../responses/client/ClientCreateResponse';
 import { PhotoResponse } from '../responses/file/PhotoResponse';
+import { GetClientResponse } from '../responses/client/GetClientResponse';
 
 export class ControllerMapperProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
@@ -17,5 +18,11 @@ export class ControllerMapperProfile extends ProfileBase {
     mapper.createMap(ClientCreateBody, Client);
     mapper.createMap(Auth, AuthResponse).reverseMap();
     mapper.createMap(Photo, PhotoResponse).reverseMap();
+
+    mapper.createMap(Client, GetClientResponse).forMember(
+      (dest) => dest.photos,
+      mapWith(PhotoResponse, (s: Client) => s.photos),
+    );
+    mapper.createMap(GetClientResponse, Client);
   }
 }

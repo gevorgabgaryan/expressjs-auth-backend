@@ -18,6 +18,8 @@ import { NotFoundMiddleware } from './middlewares/NotFoundMiddleware';
 import { CompressionMiddleware } from './middlewares/CompressionMiddleware';
 import { SecurityHstsMiddleware } from './middlewares/SecurityHstsMiddleware';
 import { AppError } from '../errors/AppError';
+import { openAPISpec } from '../lib/openAPI';
+import swaggerUi from 'swagger-ui-express';
 
 class App {
   static server: Server;
@@ -61,6 +63,11 @@ class App {
           throw new AppError(error.stack);
         }
       });
+
+      //swagger
+      const swaggerJson = await openAPISpec();
+      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJson));
+
       App.server = server;
       return server;
     } catch (e: any) {

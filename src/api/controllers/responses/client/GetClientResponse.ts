@@ -13,7 +13,7 @@ import { AutoMap } from '@nartc/automapper';
 import { Role } from '../../../enums/Role';
 import { PhotoResponse } from '../file/PhotoResponse';
 
-export class ClientCreateResponse {
+export class GetClientResponse {
   @AutoMap()
   @IsUUID()
   public id: string;
