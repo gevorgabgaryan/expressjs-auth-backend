@@ -18,6 +18,8 @@ import { NotFoundMiddleware } from './middlewares/NotFoundMiddleware';
 import { CompressionMiddleware } from './middlewares/CompressionMiddleware';
 import { SecurityHstsMiddleware } from './middlewares/SecurityHstsMiddleware';
 import { AppError } from '../errors/AppError';
+import { openAPISpec } from '../lib/openAPI';
+import swaggerUi from 'swagger-ui-express';
 
 class App {
   static server: Server;
@@ -32,13 +34,14 @@ class App {
           ErrorHandlerMiddleware,
           LogMiddleware,
           RateLimitingMiddleware,
-          NotFoundMiddleware,
           CompressionMiddleware,
           SecurityHstsMiddleware,
+          NotFoundMiddleware,
         ],
         routePrefix: config.routePrefix,
         validation: {
           whitelist: true,
+          forbidNonWhitelisted: true,
         },
         defaultErrorHandler: false,
         authorizationChecker: authorizationChecker,
@@ -52,6 +55,18 @@ class App {
       const server = app.listen(config.port, () => {
         logger.info(`Server is running on port ${config.port}`);
       });
+      server.on('error', (error: any) => {
+        if (error.code === 'EADDRINUSE') {
+          logger.error(`Port ${config.port} is already in use.`);
+          process.exit(1);
+        } else {
+          throw new AppError(error.stack);
+        }
+      });
+
+      //swagger
+      const swaggerJson = await openAPISpec();
+      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJson));
 
       App.server = server;
       return server;

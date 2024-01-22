@@ -5,18 +5,18 @@ import { LoginBody } from '../controllers/requests/auth/LoginBody';
 import config from '../../config';
 import { Auth } from './models/Auth';
 import { UnauthorizedError } from '../../errors/UnAuthorizedError';
-import { BaseTransactionable } from './base/BaseTransactionable';
 import { ClientRepository } from '../repositories/ClientRepository';
+import { BaseService } from './BaseService';
 
 ClientRepository;
 @Service()
-export class AuthService extends BaseTransactionable {
+export class AuthService extends BaseService {
   constructor() {
     super();
   }
 
   async login(userData: LoginBody): Promise<Auth> {
-    const ttokenObj = await this.transaction(async (unitOfWork) => {
+    const tokenObj = await this.transaction(async (unitOfWork) => {
       const user = await unitOfWork.clientRepository.findUserByEmail(userData.email);
       if (!user) throw new UnauthorizedError();
 
@@ -25,7 +25,7 @@ export class AuthService extends BaseTransactionable {
 
       return await this.signToken(user.id);
     });
-    return ttokenObj;
+    return tokenObj;
   }
 
   async signToken(userId: string): Promise<Auth> {

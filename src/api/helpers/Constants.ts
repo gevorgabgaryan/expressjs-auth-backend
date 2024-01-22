@@ -3,4 +3,6 @@ export class Constants {
     windowMs: 60 * 1000,
     maxCount: 5000,
   };
+
+  public static avatarPath = '/public/avatar.png';
 }
