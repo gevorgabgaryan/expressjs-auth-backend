@@ -90,7 +90,6 @@ export const fileUploadMiddleware = async (req: Request, res: Response, next: Ne
 
     next();
   } catch (e) {
-    console.log(80, e);
     throw e;
   }
 };

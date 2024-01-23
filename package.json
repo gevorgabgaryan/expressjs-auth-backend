@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,json}\"",
     "db:dev:rm": "docker compose down -v",
-    "db:dev:up": "docker compose up -d",
+    "db:dev:up": "docker-compose -f docker-compose.dev.yml up -d",
     "db:dev:restart": "npm run db:dev:rm && npm run db:dev:up",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js ",
     "typeorm:generate-migration": "npm run typeorm -- migration:generate src/db/migrations/$npm_config_name -d src/db/dataSource.ts",

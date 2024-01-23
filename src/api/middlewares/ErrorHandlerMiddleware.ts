@@ -13,7 +13,6 @@ import { ErrorField } from '../controllers/types/ErrorField';
 @Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
   error(error: any, req: Request, res: Response) {
-    // console.log(error);
     console.dir(error, { depth: 7 });
     let baseError: any;
     switch (true) {
