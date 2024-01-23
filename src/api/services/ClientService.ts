@@ -13,21 +13,21 @@ export class ClientService extends BaseService {
     super();
   }
 
-  public async addClient(userData: ClientCreateBody): Promise<Client> {
+  public async addClient(clientData: ClientCreateBody): Promise<Client> {
     try {
       return await this.transaction(async (unitOfWork) => {
-        const passwordHash = await argon.hash(userData.password);
+        const passwordHash = await argon.hash(clientData.password);
         const client = new Client();
         this.addIdAndTimestamps(client);
-        client.firstName = userData.firstName;
-        client.lastName = userData.lastName;
-        client.email = userData.email;
+        client.firstName = clientData.firstName;
+        client.lastName = clientData.lastName;
+        client.email = clientData.email;
         client.passwordHash = passwordHash;
         client.role = 'client';
         client.isActive = true;
         client.avatar = Constants.avatarPath;
         const savedClient = await unitOfWork.clientRepository.saveClient(client);
-        savedClient.photos = await this.photoService.savePhotos(userData.files, savedClient, unitOfWork);
+        savedClient.photos = await this.photoService.savePhotos(clientData.files, savedClient, unitOfWork);
         return savedClient;
       });
     } catch (error: any) {
