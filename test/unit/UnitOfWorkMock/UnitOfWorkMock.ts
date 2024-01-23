@@ -2,9 +2,14 @@ const mockUserRepository = {};
 
 const mockClientRepository = {
   saveClient: jest.fn(),
+  getClient: jest.fn(),
+  getClientWithPhotos: jest.fn(),
+  findUserByEmail: jest.fn(),
 };
 
-const mockPhotoRepository = {};
+const mockPhotoRepository = {
+  savePhoto: jest.fn(),
+};
 
 export const UnitOfWorkMock = jest.fn().mockImplementation(() => ({
   userRepository: {},
